@@ -3,15 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-const halfPi = pi * .5;
-
-class FlipDiscTransition extends AnimatedWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
-
 class FlipDisk extends StatefulWidget {
   final Color onColor;
   final Color offColor;
@@ -28,13 +19,26 @@ class FlipDisk extends StatefulWidget {
         );
 
   @override
-  FlipDiskState createState() => FlipDiskState();
+  FlipDiskState createState() {
+    return FlipDiskState(
+      onColor: onColor,
+      offColor: offColor,
+    );
+  }
 }
 
 class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
   AnimationController _animationController;
   Animation _animation;
   bool _isOff = false;
+
+  Color onColor;
+  Color offColor;
+
+  FlipDiskState({
+    @required this.onColor,
+    @required this.offColor,
+  });
 
   bool get needsAnimation => widget.isOn == _isOff;
 
@@ -43,7 +47,7 @@ class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
     super.initState();
 
     _animationController = new AnimationController(
-        duration: Duration(milliseconds: 200), vsync: this)
+        duration: Duration(milliseconds: 500), vsync: this)
       ..addStatusListener((status) {
         switch (status) {
           case AnimationStatus.dismissed:
@@ -57,6 +61,8 @@ class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
             break;
           case AnimationStatus.completed:
             _isOff = _isOff != true;
+            onColor = widget.onColor;
+            offColor = widget.offColor;
             _animationController.reverse();
             break;
         }
@@ -66,7 +72,7 @@ class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
       });
 
     _animation = Tween(begin: 0.0, end: pi / 2)
-        .chain(CurveTween(curve: Curves.easeInCubic))
+        .chain(CurveTween(curve: Curves.easeInExpo))
         .animate(_animationController);
 
     if (needsAnimation) {
@@ -79,6 +85,16 @@ class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
     super.didUpdateWidget(oldWidget);
     if (needsAnimation) {
       _animationController.forward();
+    } else if (widget.onColor != oldWidget.onColor ||
+        widget.offColor != oldWidget.offColor) {
+      if (widget.isOn) {
+        _animationController.forward();
+      } else {
+        setState(() {
+          onColor = widget.onColor;
+          offColor = widget.offColor;
+        });
+      }
     }
   }
 
@@ -96,10 +112,7 @@ class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
       child: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: _isOff ? widget.offColor : widget.onColor,
-          // boxShadow: [
-          //   BoxShadow(color: Colors.grey, blurRadius: 1.0, offset: Offset(1, 1))
-          // ],
+          color: _isOff ? offColor : onColor,
         ),
       ),
     );
