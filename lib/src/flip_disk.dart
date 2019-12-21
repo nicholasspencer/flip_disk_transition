@@ -8,19 +8,26 @@ class FlipDisk extends StatefulWidget {
   final Color offColor;
   final bool isOn;
 
-  FlipDisk({
-    this.onColor = Colors.white,
-    Color offColor,
-    this.isOn = true,
+  final EdgeInsetsGeometry margin;
+  final EdgeInsetsGeometry padding;
+  final Size size;
+
+  const FlipDisk({
+    @required this.onColor,
+    @required this.offColor,
+    @required this.size,
+    this.isOn = false,
+    this.margin = EdgeInsets.zero,
+    this.padding = EdgeInsets.zero,
     Key key,
-  })  : this.offColor = offColor ?? Colors.grey.withOpacity(0.15),
-        super(
+  }) : super(
           key: key,
         );
 
   @override
   FlipDiskState createState() {
     return FlipDiskState(
+      isOn: isOn,
       onColor: onColor,
       offColor: offColor,
     );
@@ -30,24 +37,27 @@ class FlipDisk extends StatefulWidget {
 class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
   AnimationController _animationController;
   Animation _animation;
-  bool _isOff = false;
 
+  bool isOn = false;
   Color onColor;
   Color offColor;
 
   FlipDiskState({
+    @required this.isOn,
     @required this.onColor,
     @required this.offColor,
   });
 
-  bool get needsAnimation => widget.isOn == _isOff;
+  bool get needsAnimation => widget.isOn != isOn;
+  bool get needsOnColorUpdate => widget.onColor != onColor;
+  bool get needsOffColorUpdate => widget.offColor != offColor;
 
   @override
   void initState() {
     super.initState();
 
     _animationController = new AnimationController(
-        duration: Duration(milliseconds: 500), vsync: this)
+        duration: Duration(milliseconds: 335), vsync: this)
       ..addStatusListener((status) {
         switch (status) {
           case AnimationStatus.dismissed:
@@ -60,7 +70,7 @@ class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
           case AnimationStatus.reverse:
             break;
           case AnimationStatus.completed:
-            _isOff = _isOff != true;
+            isOn = isOn != true;
             onColor = widget.onColor;
             offColor = widget.offColor;
             _animationController.reverse();
@@ -72,7 +82,7 @@ class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
       });
 
     _animation = Tween(begin: 0.0, end: pi / 2)
-        .chain(CurveTween(curve: Curves.easeInExpo))
+        .chain(CurveTween(curve: Curves.easeIn))
         .animate(_animationController);
 
     if (needsAnimation) {
@@ -83,6 +93,7 @@ class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
   @override
   void didUpdateWidget(FlipDisk oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     if (needsAnimation) {
       _animationController.forward();
     } else if (widget.onColor != oldWidget.onColor ||
@@ -110,9 +121,13 @@ class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
     return FlipDiskTransform(
       rotation: _animation.value,
       child: Container(
+        margin: widget.margin,
+        padding: widget.padding,
+        width: widget.size.width,
+        height: widget.size.height,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: _isOff ? offColor : onColor,
+          color: isOn ? onColor : offColor,
         ),
       ),
     );
@@ -141,7 +156,6 @@ class FlipDiskTransform extends StatelessWidget {
 
 extension _Matrix4Extension on Matrix4 {
   void flip(double rotation) {
-    // rotation = rotation >= halfPi ? pi - rotation : rotation;
     setEntry(3, 2, 0.0001);
     rotateX(rotation);
     rotateY(rotation * .5 * -1);
