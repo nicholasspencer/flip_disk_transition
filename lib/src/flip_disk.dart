@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+typedef FlipDiskTapCallback = void Function();
+
 class FlipDisk extends StatefulWidget {
   final Color onColor;
   final Color offColor;
@@ -12,6 +14,8 @@ class FlipDisk extends StatefulWidget {
   final EdgeInsetsGeometry padding;
   final Size size;
 
+  final FlipDiskTapCallback onTap;
+
   const FlipDisk({
     @required this.onColor,
     @required this.offColor,
@@ -19,6 +23,7 @@ class FlipDisk extends StatefulWidget {
     this.isOn = false,
     this.margin = EdgeInsets.zero,
     this.padding = EdgeInsets.zero,
+    this.onTap,
     Key key,
   }) : super(
           key: key,
@@ -118,16 +123,19 @@ class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return FlipDiskTransform(
-      rotation: _animation.value,
-      child: Container(
-        margin: widget.margin,
-        padding: widget.padding,
-        width: widget.size.width,
-        height: widget.size.height,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isOn ? onColor : offColor,
+    return GestureDetector(
+      onTap: widget.onTap ?? () {},
+      child: FlipDiskTransform(
+        rotation: _animation.value,
+        child: Container(
+          margin: widget.margin,
+          padding: widget.padding,
+          width: widget.size.width,
+          height: widget.size.height,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isOn ? onColor : offColor,
+          ),
         ),
       ),
     );

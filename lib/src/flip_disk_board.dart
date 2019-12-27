@@ -1,48 +1,81 @@
+import 'dart:math';
+
+import 'package:flipdisc/src/index_path.dart';
 import 'package:flutter/material.dart';
 
 import 'character.dart';
 import 'flip_disk.dart';
 
-class FlipDiskBoard extends StatelessWidget {
+class FlipDiskBoard extends StatefulWidget {
+  @override
+  _FlipDiskBoardState createState() => _FlipDiskBoardState();
+}
+
+class _FlipDiskBoardState extends State<FlipDiskBoard> {
+  Character data = Character.one;
+  final margin = .5;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    var zero = Character.fromSize(height: 21, width: 2) +
-        Character.zero +
-        Character.fromSize(height: 21, width: 2) +
-        Character.zero +
-        Character.fromSize(height: 21, width: 2) +
-        Character.colon +
-        Character.fromSize(height: 21, width: 2) +
-        Character.zero +
-        Character.fromSize(height: 21, width: 2) +
-        Character.zero +
-        Character.fromSize(height: 21, width: 2);
+    data = Character.zero;
+    data = Character.fromSize(height: 21, width: 2, value: 0) +
+        Character.one +
+        Character.fromSize(height: 21, width: 2, value: 0) +
+        Character.three +
+        Character.fromSize(height: 21, width: 2, value: 0) +
+        Character.three +
+        Character.fromSize(height: 21, width: 2, value: 0) +
+        Character.seven +
+        Character.fromSize(height: 21, width: 2, value: 0);
+
+    final horizontalCount = data.row(0).length;
+
+    print(horizontalCount);
 
     return Container(
       color: theme.backgroundColor,
       child: Align(
         child: AspectRatio(
-          aspectRatio: 500.0 / 300.0,
+          aspectRatio: 5.0 / 3.0,
           child: Container(
             decoration: BoxDecoration(
                 color: theme.backgroundColor, boxShadow: [BoxShadow()]),
             child: LayoutBuilder(
               builder: (context, constraints) {
+                final width = constraints.minWidth;
+                final size = (width - ((margin * 2) * horizontalCount)) /
+                    horizontalCount;
+                print(size);
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    for (var row in zero)
+                    for (int row = 0; row < data.length; row++)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          for (var column in row.asIntIterable())
+                          for (int column = 0;
+                              column < data.row(row).length;
+                              column++)
                             FlipDisk(
                               onColor: theme.primaryColorLight,
                               offColor: theme.primaryColorDark,
-                              size: const Size.square(11),
-                              margin: EdgeInsets.all(.5),
-                              isOn: column == 0 ? false : true,
+                              size: Size.square(size),
+                              margin: EdgeInsets.all(margin),
+                              isOn:
+                                  data[IndexPath(column: column, row: row)] == 0
+                                      ? false
+                                      : true,
+                              onTap: () {
+                                final indexPath = IndexPath(
+                                  column: column,
+                                  row: row,
+                                );
+                                final isOn = data[indexPath] == 1;
+                                setState(() {
+                                  data[indexPath] = isOn ? 0 : 1;
+                                });
+                              },
                             ),
                         ],
                       ),

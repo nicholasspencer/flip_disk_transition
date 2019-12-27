@@ -19,7 +19,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  bit_array: any
   collection: any
 
 dev_dependencies:
