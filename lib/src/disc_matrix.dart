@@ -1,26 +1,29 @@
 import 'package:collection/collection.dart';
 import 'package:flipdisc/src/index_path.dart';
 
-class Character extends DelegatingIterable {
+class DiscMatrix {
   final List<List<int>> _matrix;
 
-  const Character(
+  const DiscMatrix(
     List<List<int>> matrix,
-  )   : _matrix = matrix,
-        super(matrix);
+  ) : _matrix = matrix;
 
-  factory Character.fromSize({
+  factory DiscMatrix.fromSize({
     int height = 0,
     int width = 0,
     int value = 0,
   }) {
-    return Character(
+    return DiscMatrix(
       List.filled(
         height,
         List.filled(width, value),
       ),
     );
   }
+
+  int get rows => _matrix.length;
+
+  int get columns => _matrix.first.length;
 
   List<int> row(int index) {
     return _matrix[index];
@@ -34,19 +37,76 @@ class Character extends DelegatingIterable {
     _matrix[index.row][index.column] = value;
   }
 
-  Character operator +(Character other) {
-    assert(length == other.length);
+  DiscMatrix operator +(DiscMatrix other) => DiscMatrix.join([this, other]);
 
-    final joined = IterableZip([_matrix, other._matrix]).map((zipper) {
-      return zipper[0].toList() + zipper[1].toList();
+  static DiscMatrix join(
+    List<DiscMatrix> discMatrices, {
+    DiscMatrix seperator,
+  }) {
+    final isUniform = discMatrices.every(
+      (matrix) => matrix.rows == discMatrices.first.rows,
+    );
+
+    assert(isUniform);
+
+    final matrices = discMatrices.map((m) => m._matrix);
+
+    /// Zip together all of the columns per row
+    var row = 0;
+    final joined = IterableZip(matrices).map((zipper) {
+      var fold = 0;
+
+      final columns = zipper.fold<List<int>>([], (sum, columns) {
+        columns = sum + columns;
+
+        /// Fold in seperators if appropriate
+        if (seperator != null && fold < zipper.length - 1) {
+          columns = columns + seperator.row(row);
+        }
+
+        fold += 1;
+
+        return columns;
+      });
+
+      row += 1;
+
+      return columns;
     }).toList();
 
-    return Character(
+    return DiscMatrix(
       joined,
     );
   }
 
-  static final Character zero = Character(
+  static final DiscMatrix padding = const DiscMatrix(
+    [
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0]
+    ],
+  );
+
+  /// 0
+  static final DiscMatrix u48 = const DiscMatrix(
     [
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -68,11 +128,12 @@ class Character extends DelegatingIterable {
       [0, 0, 1, 1, 1, 1, 1, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0]
     ],
   );
 
-  static final Character one = Character(
+  /// 1
+  static final DiscMatrix u49 = const DiscMatrix(
     [
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -98,7 +159,8 @@ class Character extends DelegatingIterable {
     ],
   );
 
-  static final Character two = Character(
+  /// 2
+  static final DiscMatrix u50 = const DiscMatrix(
     [
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -124,7 +186,8 @@ class Character extends DelegatingIterable {
     ],
   );
 
-  static final Character three = Character(
+  /// 3
+  static final DiscMatrix u51 = const DiscMatrix(
     [
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -150,7 +213,8 @@ class Character extends DelegatingIterable {
     ],
   );
 
-  static final Character four = Character(
+  /// 4
+  static final DiscMatrix u52 = const DiscMatrix(
     [
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -176,7 +240,8 @@ class Character extends DelegatingIterable {
     ],
   );
 
-  static final Character five = Character(
+  /// 5
+  static final DiscMatrix u53 = const DiscMatrix(
     [
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -202,7 +267,8 @@ class Character extends DelegatingIterable {
     ],
   );
 
-  static final Character six = Character(
+  /// 6
+  static final DiscMatrix u54 = const DiscMatrix(
     [
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -228,7 +294,8 @@ class Character extends DelegatingIterable {
     ],
   );
 
-  static final Character seven = Character(
+  /// 7
+  static final DiscMatrix u55 = const DiscMatrix(
     [
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -254,7 +321,8 @@ class Character extends DelegatingIterable {
     ],
   );
 
-  static final Character eight = Character(
+  /// 8
+  static final DiscMatrix u56 = const DiscMatrix(
     [
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -280,7 +348,8 @@ class Character extends DelegatingIterable {
     ],
   );
 
-  static final Character nine = Character(
+  /// 9
+  static final DiscMatrix u57 = const DiscMatrix(
     [
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -306,7 +375,8 @@ class Character extends DelegatingIterable {
     ],
   );
 
-  static final Character colon = Character(
+  /// colon
+  static final DiscMatrix u58 = const DiscMatrix(
     [
       [0, 0, 0],
       [0, 0, 0],
@@ -331,4 +401,15 @@ class Character extends DelegatingIterable {
       [0, 0, 0],
     ],
   );
+}
+
+extension DiscMatrixList on List<DiscMatrix> {
+  DiscMatrix join({
+    DiscMatrix seperator,
+  }) {
+    return DiscMatrix.join(
+      this,
+      seperator: seperator,
+    );
+  }
 }

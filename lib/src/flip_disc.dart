@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-typedef FlipDiskTapCallback = void Function();
+typedef FlipDiscTapCallback = void Function();
 
-class FlipDisk extends StatefulWidget {
+class FlipDisc extends StatefulWidget {
   final Color onColor;
   final Color offColor;
   final bool isOn;
@@ -14,9 +14,9 @@ class FlipDisk extends StatefulWidget {
   final EdgeInsetsGeometry padding;
   final Size size;
 
-  final FlipDiskTapCallback onTap;
+  final FlipDiscTapCallback onTap;
 
-  const FlipDisk({
+  const FlipDisc({
     @required this.onColor,
     @required this.offColor,
     @required this.size,
@@ -30,8 +30,8 @@ class FlipDisk extends StatefulWidget {
         );
 
   @override
-  FlipDiskState createState() {
-    return FlipDiskState(
+  FlipDiscState createState() {
+    return FlipDiscState(
       isOn: isOn,
       onColor: onColor,
       offColor: offColor,
@@ -39,7 +39,7 @@ class FlipDisk extends StatefulWidget {
   }
 }
 
-class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
+class FlipDiscState extends State<FlipDisc> with TickerProviderStateMixin {
   AnimationController _animationController;
   Animation _animation;
 
@@ -47,7 +47,7 @@ class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
   Color onColor;
   Color offColor;
 
-  FlipDiskState({
+  FlipDiscState({
     @required this.isOn,
     @required this.onColor,
     @required this.offColor,
@@ -96,7 +96,7 @@ class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
   }
 
   @override
-  void didUpdateWidget(FlipDisk oldWidget) {
+  void didUpdateWidget(FlipDisc oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (needsAnimation) {
@@ -125,7 +125,7 @@ class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap ?? () {},
-      child: FlipDiskTransform(
+      child: FlipDiscTransform(
         rotation: _animation.value,
         child: Container(
           margin: widget.margin,
@@ -142,11 +142,11 @@ class FlipDiskState extends State<FlipDisk> with TickerProviderStateMixin {
   }
 }
 
-class FlipDiskTransform extends StatelessWidget {
+class FlipDiscTransform extends StatelessWidget {
   final Widget child;
   final double rotation;
 
-  const FlipDiskTransform({
+  const FlipDiscTransform({
     Key key,
     @required this.rotation,
     @required this.child,
